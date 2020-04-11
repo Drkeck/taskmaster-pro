@@ -33,6 +33,7 @@ var auditTask = function(taskEl) {
   } else if (Math.abs(moment().diff(time, "days")) <= 2) {
     $(taskEl).addClass("list-group-item-warning");
   }
+  
 };
 
 var loadTasks = function() {
@@ -62,9 +63,6 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
-
-
-
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
   // clear values
@@ -78,7 +76,7 @@ $("#task-form-modal").on("shown.bs.modal", function() {
 });
 
 // save button in modal was clicked
-$("#task-form-modal .btn-primary").click(function() {
+$("#task-form-modal .btn-save").click(function() {
   // get form values
   var taskText = $("#modalTaskDescription").val();
   var taskDate = $("#modalDueDate").val();
@@ -183,7 +181,26 @@ $(".card .list-group").sortable({
   scroll: false,
   tolerance: "pointer",
   helper: "clone",
-  
+  activate: function(event) {
+    $(this).addClass("dropover");
+    $(".bottom-trash").addClass("bottom-trash-drag");
+    console.log("active")
+  },
+  deactivate: function(event) {
+    $(this).removeClass("dropover");
+    $(".bottom-trash").removeClass("bottom-trash-drag");
+    console.log("deactiveate")
+  },
+  over: function(event, ui) {
+    console.log("over");
+    
+    $(this).addClass("dropover-active");
+  },
+  out: function(event, ui) {
+    console.log("out")
+    
+    $(this).removeClass("dropover-active");
+  },
   update: function(event) {
     var tempArr = [];
 
@@ -219,14 +236,16 @@ $("#trash").droppable({
   accept: ".card .list-group-item",
   tolerance: "touch",
   drop: function(event, ui) {
-    console.log("drop");
+    $(".bottom-trash").removeClass("bottom-trash-active");
     ui.draggable.remove();
   },
   over: function(event, ui) {
+    $(".bottom-trash").addClass("bottom-trash-active");
     console.log("over");
   },
   out: function(event, ui) {
     console.log("out");
+    $(".bottom-trash").removeClass("bottom-trash-active");
   }
 });
 
@@ -241,3 +260,10 @@ $("#remove-tasks").on("click", function() {
 
 // load tasks for the first time
 loadTasks();
+
+//
+setInterval(function() {
+  $(".card .list-group-item").each(function (el) {
+    auditTask(el);
+  });
+}, 1800000);
